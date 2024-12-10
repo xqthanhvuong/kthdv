@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = Exception.class)
-    ResponseEntity<JsonResponse<String>> handleRuntimeException(Exception e) {
-        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
-        return ResponseEntity.status(errorCode.getStatusCode()).body(JsonResponse.error(errorCode));
-    }
+//    @ExceptionHandler(value = Exception.class)
+//    ResponseEntity<JsonResponse<String>> handleRuntimeException(Exception e) {
+//        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+//        return ResponseEntity.status(errorCode.getStatusCode()).body(JsonResponse.error(errorCode));
+//    }
 
     @ExceptionHandler(value = BadException.class)
     ResponseEntity<JsonResponse<String>> handleAppException(BadException e) {

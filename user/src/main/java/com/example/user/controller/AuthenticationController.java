@@ -3,6 +3,7 @@ package com.example.user.controller;
 import com.example.user.dto.AuthenticationRequest;
 import com.example.user.dto.AuthenticationResponse;
 import com.example.user.dto.JsonResponse;
+import com.example.user.dto.LogoutRequest;
 import com.example.user.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -14,19 +15,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
 
-    @PostMapping("/login")
+    @PostMapping("/log-in")
     public JsonResponse<AuthenticationResponse> login(@RequestBody @Valid AuthenticationRequest request) {
         return JsonResponse.success(authenticationService.authenticate(request));
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/log-out")
     public JsonResponse<String> logout(@RequestBody @Valid LogoutRequest request) {
         authenticationService.logout(request);
         return JsonResponse.success("Logout successful");

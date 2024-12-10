@@ -15,12 +15,18 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
+import java.util.Base64;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
-    @Value("${jwt.signerKey}")
-    private String signerKey;
+    @Value("${jwt.publicKey}")
+    private String publicKeyStr;
     @Autowired
     private AuthenticationService authenticationService;
     private NimbusJwtDecoder nimbusJwtDecoder;
@@ -30,17 +36,22 @@ public class CustomJwtDecoder implements JwtDecoder {
     public Jwt decode(String token) throws JwtException {
         try {
             authenticationService.verifyToken(token);
-
-        } catch (RuntimeException | ParseException | JOSEException e) {
+            if (ObjectUtils.isEmpty(nimbusJwtDecoder)) {
+                String cleanedKey = publicKeyStr.replace("\n", "").replace("\r", "")
+                        .replace("-----BEGIN PUBLIC KEY-----", "")
+                        .replace("-----END PUBLIC KEY-----", "")
+                        .replaceAll("\\s", "")
+                        .replace(" ", "");
+                byte[] decodedKey = Base64.getDecoder().decode(cleanedKey);
+                X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decodedKey);
+                RSAPublicKey publicKey  = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(keySpec);
+                nimbusJwtDecoder = NimbusJwtDecoder.withPublicKey(publicKey).build();
+            }
+        } catch (RuntimeException | ParseException | JOSEException | NoSuchAlgorithmException |
+                 InvalidKeySpecException e) {
             throw new BadException(ErrorCode.UNAUTHENTICATED);
         }
-        if (ObjectUtils.isEmpty(nimbusJwtDecoder)) {
-            SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-            nimbusJwtDecoder = NimbusJwtDecoder
-                    .withSecretKey(secretKeySpec)
-                    .macAlgorithm(MacAlgorithm.HS512)
-                    .build();
-        }
+
         return nimbusJwtDecoder.decode(token);
     }
 }

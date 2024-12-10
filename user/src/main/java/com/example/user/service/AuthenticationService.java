@@ -73,25 +73,28 @@ public class AuthenticationService {
         }
     }
 
-    public void invalidateToken(SignedJWT signToken) throws ParseException {
-        String jwt = signToken.getJWTClaimsSet().getJWTID();
-        LocalDateTime expiryTime = signToken.getJWTClaimsSet().getExpirationTime().toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
-
-        InvalidatedToken invalidatedToken = new InvalidatedToken(jwt, expiryTime);
-        invalidatedTokenRepository.save(invalidatedToken);
+    public void invalidateToken(SignedJWT signToken)  {
+        try {
+            String jwt = signToken.getJWTClaimsSet().getJWTID();
+            LocalDateTime expiryTime = signToken.getJWTClaimsSet().getExpirationTime().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+            InvalidatedToken invalidatedToken = new InvalidatedToken(jwt, expiryTime);
+            invalidatedTokenRepository.save(invalidatedToken);
+        }catch (ParseException e){
+            throw new BadException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
     }
 
     public String createToken(String username, String role) {
         return jwtUtil.generateToken(username, role);
     }
 
-    public void logout(LogoutRequest request) throws ParseException {
+    public void logout(LogoutRequest request) {
         SignedJWT signToken = null;
         try {
             signToken = verifyToken(request.getToken());
-        } catch (JOSEException e) {
+        } catch (JOSEException  | ParseException e) {
             throw new RuntimeException(e);
         }
         invalidateToken(signToken);
