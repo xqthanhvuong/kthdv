@@ -41,7 +41,7 @@ public class AuthenticationService {
             throw new BadException(ErrorCode.USER_IS_BLOCK);
         }
 
-        var token = jwtUtil.generateToken(user.getUsername(), "USER");
+        var token = jwtUtil.generateToken(user.getUsername(), "USER", user.getId());
         return AuthenticationResponse.builder()
                 .token(token)
                 .build();
@@ -86,9 +86,6 @@ public class AuthenticationService {
         }
     }
 
-    public String createToken(String username, String role) {
-        return jwtUtil.generateToken(username, role);
-    }
 
     public void logout(LogoutRequest request) {
         SignedJWT signToken = null;

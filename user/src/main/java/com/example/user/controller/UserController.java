@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
@@ -30,7 +30,7 @@ public class UserController {
         return JsonResponse.success(userService.getUserById(userId));
     }
 
-    @GetMapping("/my-info")
+    @GetMapping("/my-Infor")
     public JsonResponse<UserResponse> getMyInfo() {
         return JsonResponse.success(userService.getMyInfo());
     }

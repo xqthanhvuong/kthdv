@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        # Route cho users
+        - id: user2
+          uri: http://127.0.0.1:8082
+          predicates:
+            - Path=/users/**
+
+        # Route cho auth
+        - id: user
+          uri: http://127.0.0.1:8082
+          predicates:
+            - Path=/auth/**
+
+        # Route cho comments
+        - id: content
+          uri: http://127.0.0.1:8083
+          predicates:
+            - Path=/comments/**
+
+        # Route cho posts
+        - id: content2
+          uri: http://127.0.0.1:8083
+          predicates:
+            - Path=/posts/**
+
+        # Route cho reports
+        - id: report
+          uri: http://127.0.0.1:8084
+          predicates:
+            - Path=/reports/**
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway, health, info
+  endpoint:
+    gateway:
+      enabled: true

@@ -32,7 +32,7 @@ public class JwtUtil {
     @NonFinal
     private static final long EXPIRE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-    public String generateToken(String username, String role) {
+    public String generateToken(String username, String role, Long userId) {
         try {
             String cleanedKey = privateKeyStr.replace("\n", "").replace("\r", "")
                     .replace("-----BEGIN PRIVATE KEY-----", "")
@@ -46,6 +46,7 @@ public class JwtUtil {
             JWSHeader header = new JWSHeader(JWSAlgorithm.RS256);
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                     .subject(username)
+                    .claim("id", userId)
                     .issuer("medhealth.com")
                     .claim("scope", role) // Add role to the JWT
                     .issueTime(new Date())

@@ -1,7 +1,7 @@
 server:
   port: 8082
   servlet:
-    context-path: /medhealth/api
+    context-path:
 
 #flyway:
 #  repair: true
@@ -35,7 +35,6 @@ springdoc:
     path: /document/swagger-ui.html
 
 jwt:
-  signerKey: "EIG2ryG3InsGo7mStNgivMrw2/OpHD4UrBJUPwkSWacWJaEztRuqsr/axSiuCTxZ"
   publicKey: | 
     -----BEGIN PUBLIC KEY-----
     MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmqj1di5W7at8KV2C2JKO
