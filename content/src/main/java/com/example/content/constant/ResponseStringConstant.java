@@ -12,4 +12,5 @@ public class ResponseStringConstant {
     public static final String REJECT_POST = "Post rejected";
     public static final String UNLIKE = "unliked successfully";
     public static final String APPROVAL_POST = "Approval post successfully approved";
+    public static final String BLOCK_POST = "post successfully blocked";
 }

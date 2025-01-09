@@ -59,5 +59,36 @@ public class ReportService {
             return false;
         }
     }
+
+    public Integer getCount(Long postId){
+        String url = reportServiceBaseUrl + "/reports/count/"+postId;
+        String jwtToken = SecurityUtils.getJwtTokenFromRequest();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", jwtToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<ReportRequest> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<JsonResponse<Integer>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<JsonResponse<Integer>>() {}
+            );
+
+            JsonResponse<Integer> responseBody = response.getBody();
+            if (responseBody == null || responseBody.getResult() == null) {
+                log.warn("Error response from server");
+                return 0;
+            }
+
+            return responseBody.getResult();
+
+        } catch (Exception e) {
+            log.error("Failed to fetch: {}", e.getMessage());
+            return 0;
+        }
+    }
 }
 

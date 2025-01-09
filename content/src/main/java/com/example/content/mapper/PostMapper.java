@@ -2,6 +2,8 @@ package com.example.content.mapper;
 
 import com.example.content.dto.PostDetailResponse;
 import com.example.content.dto.PostRequest;
+import com.example.content.dto.PostResponse;
+import com.example.content.dto.PostReviewResponse;
 import com.example.content.entity.Post;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -13,4 +15,6 @@ public interface PostMapper {
     void updatePost(@MappingTarget Post post, PostRequest postRequest);
 
     PostDetailResponse toPostDetailResponse(Post post);
+
+    PostReviewResponse toPostReviewResponse(PostResponse post);
 }

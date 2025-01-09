@@ -1,9 +1,6 @@
 package com.example.user.controller;
 
-import com.example.user.dto.AuthenticationRequest;
-import com.example.user.dto.AuthenticationResponse;
-import com.example.user.dto.JsonResponse;
-import com.example.user.dto.LogoutRequest;
+import com.example.user.dto.*;
 import com.example.user.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -27,10 +24,16 @@ public class AuthenticationController {
         return JsonResponse.success(authenticationService.authenticate(request));
     }
 
+    @PostMapping("/introspect")
+    public JsonResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request) {
+        return JsonResponse.success(authenticationService.introspect(request));
+    }
+
     @PostMapping("/log-out")
     public JsonResponse<String> logout(@RequestBody @Valid LogoutRequest request) {
         authenticationService.logout(request);
         return JsonResponse.success("Logout successful");
     }
+
 }
 

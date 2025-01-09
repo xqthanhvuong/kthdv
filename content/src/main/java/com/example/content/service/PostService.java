@@ -21,6 +21,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -178,5 +180,101 @@ public class PostService {
 
     public PostDetailResponse getPostDetail(long postId) {
         return postMapper.toPostDetailResponse(getPostById(postId));
+    }
+
+
+
+
+
+    //admin
+
+    public PagedResponse<?> getPost(CustomPageRequest<?> request) {
+        Page<PostResponse> postPage = postRepository
+                .findPostsWithLikeAndCommentCountsAdmin(request.toPageable()
+                        , getUserId(request)
+                        , getPostStatus(request)
+                        , getKeyWord(request)
+                        , getStartDay(request).atStartOfDay()
+                        , getEndDay(request).atTime(LocalTime.MAX));
+        for (PostResponse item: postPage.getContent()) {
+            UserResponse userResponse = userService.fetchUserInfo(item.getUserId());
+            item.setAvatar(userResponse.getAvatar());
+            item.setUserName(userResponse.getUsername());
+            item.setAuthor(userResponse.getName());
+            item.setNumberReport(reportService.getCount(item.getId()));
+        }
+        return new PagedResponse<>(
+                postPage.getContent(),
+                postPage.getNumber(),
+                postPage.getTotalElements(),
+                postPage.getTotalPages(),
+                postPage.isLast());
+
+    }
+
+    public LocalDate getStartDay(CustomPageRequest<?> request) {
+        return getFilterValue(request, Filter::getStartDay);
+    }
+
+    public LocalDate getEndDay(CustomPageRequest<?> request) {
+        return getFilterValue(request, Filter::getEndDay);
+    }
+
+    public void rejectPost(Long postId, RejectPostRequest request) {
+        Post post = getPostById(postId);
+        post.setPostStatus(PostStatus.REJECT);
+        post.setRejection_reason(request.getRejectReason());
+        postRepository.save(post);
+    }
+
+    public void approvalPost(Long postId) {
+        Post post = getPostById(postId);
+        post.setPostStatus(PostStatus.PUBLISH);
+        postRepository.save(post);
+    }
+
+    public PagedResponse<?> getReviewPost(CustomPageRequest<?> request) {
+        Page<PostResponse> postPage = postRepository
+                .findPostsWithLikeAndCommentCountsAdmin(request.toPageable()
+                        , getUserId(request)
+                        , getPostStatus(request)
+                        , getKeyWord(request)
+                        , getStartDay(request).atStartOfDay()
+                        , getEndDay(request).atTime(LocalTime.MAX));
+        for (PostResponse item: postPage.getContent()) {
+            UserResponse userResponse = userService.fetchUserInfo(item.getUserId());
+            item.setAvatar(userResponse.getAvatar());
+            item.setUserName(userResponse.getUsername());
+            item.setAuthor(userResponse.getName());
+        }
+        List<PostReviewResponse> postReviewResponses = new ArrayList<>();
+        for (PostResponse post : postPage.getContent()) {
+            postReviewResponses.add(postMapper.toPostReviewResponse(post));
+        }
+        return new PagedResponse<>(
+                postReviewResponses,
+                postPage.getNumber(),
+                postPage.getTotalElements(),
+                postPage.getTotalPages(),
+                postPage.isLast());
+
+    }
+
+    public UserResponse getUserByPost(long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new BadException(ErrorCode.POST_NOT_EXISTED)
+        );
+        return userService.fetchUserInfo(post.getUserId());
+    }
+
+    public PostResponse getPostDetailAdmin(long postId) {
+        Post post = getPostById(postId);
+        PostResponse postResponse = postRepository.findPostWithLikeAndCommentCounts(post.getId());
+        UserResponse userResponse = userService.fetchUserInfo(post.getUserId());
+        postResponse.setUserName(userResponse.getUsername());
+        postResponse.setAuthor(userResponse.getName());
+        postResponse.setAvatar(userResponse.getAvatar());
+        postResponse.setNumberReport(reportService.getCount(postId));
+        return postResponse;
     }
 }
